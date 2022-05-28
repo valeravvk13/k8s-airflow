@@ -13,28 +13,9 @@ def print_hello():
     for item, value in os.environ.items():
         print('{}: {}'.format(item, value))
 
-    # cur_time = datetime.datetime.now()
-    # time.sleep(1)
-    # a = 10
-    # while datetime.datetime.now() < cur_time + datetime.timedelta(seconds=20):
-    #     a = a / 2
+    time.sleep(20)
+    print("hello")
 
-    import subprocess
-    import sys
-
-    try:
-        import pandas as pd
-        import pyspark
-    except ImportError:
-        subprocess.check_call([sys.executable, "-m", "pip", "install", 'pandas'])
-        subprocess.check_call([sys.executable, "-m", "pip", "install", 'numpy'])
-        subprocess.check_call([sys.executable, "-m", "pip", "install", 'sklearn'])
-        subprocess.check_call([sys.executable, "-m", "pip", "install", 'pyspark'])
-    finally:
-        import pandas as pd
-        import pyspark
-
-    return 'hello!'
 
 dag = DAG(dag_id='hello_world_dag2',
           description='Hello World DAG',
@@ -43,12 +24,18 @@ dag = DAG(dag_id='hello_world_dag2',
           catchup=False,
           )
 
+tolerations = [{
+    'key': 'oos',
+    'operator': 'Exists',
+    #'value': 'true'
+}]
 kubernetes_executor = {
     "KubernetesExecutor": {
         "request_cpu": "500m",
         "request_memory": "512Mi",
         "limit_cpu": "500m",
         "limit_memory": "512Mi",
+        "tolerations": tolerations,
     }
 }
 
@@ -77,6 +64,13 @@ executor_config_volume_mount = {
                     ),
                 )
             ],
+            tolerations=[
+                k8s.V1Toleration(
+                    effect="NoSchedule",
+                    key="oos",
+                    operator="Exists",
+                )
+            ]
         )
 
     ),

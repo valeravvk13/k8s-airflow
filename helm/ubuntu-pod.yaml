@@ -3,6 +3,19 @@ kind: Pod
 metadata:
   name: ubuntu-pod
 spec:
+  tolerations:
+    - effect: NoSchedule
+      key: oos
+      operator: Exists
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: team
+                operator: In
+                values:
+                  - oos
   containers:
     - name: ubuntu-container
       image: ubuntu
@@ -18,14 +31,15 @@ spec:
         requests:
           cpu: 100m
           memory: 128Mi
-      volumeMounts:
-        - mountPath: "/home/dags"
-          name: pv-storage
-          subPath: dags
-        - mountPath: "/home/logs"
-          name: pv-storage
-          subPath: logs
-  volumes:
-    - name: pv-storage
-      persistentVolumeClaim:
-        claimName: task-pv-claim
+#
+#      volumeMounts:
+#        - mountPath: "/home/dags"
+#          name: pv-storage
+#          subPath: dags
+#        - mountPath: "/home/logs"
+#          name: pv-storage
+#          subPath: logs
+#  volumes:
+#    - name: pv-storage
+#      persistentVolumeClaim:
+#        claimName: task-pv-claim
