@@ -8,7 +8,32 @@ from airflow.decorators import task
 
 def print_hello():
     import time
-    time.sleep(120)
+    import os
+    import datetime
+    for item, value in os.environ.items():
+        print('{}: {}'.format(item, value))
+
+    # cur_time = datetime.datetime.now()
+    # time.sleep(1)
+    # a = 10
+    # while datetime.datetime.now() < cur_time + datetime.timedelta(seconds=20):
+    #     a = a / 2
+
+    import subprocess
+    import sys
+
+    try:
+        import pandas as pd
+        import pyspark
+    except ImportError:
+        subprocess.check_call([sys.executable, "-m", "pip", "install", 'pandas'])
+        subprocess.check_call([sys.executable, "-m", "pip", "install", 'numpy'])
+        subprocess.check_call([sys.executable, "-m", "pip", "install", 'sklearn'])
+        subprocess.check_call([sys.executable, "-m", "pip", "install", 'pyspark'])
+    finally:
+        import pandas as pd
+        import pyspark
+
     return 'hello!'
 
 dag = DAG(dag_id='hello_world_dag2',
@@ -18,16 +43,20 @@ dag = DAG(dag_id='hello_world_dag2',
           catchup=False,
           )
 
-# hello_operator = PythonOperator(task_id='hello_task',
-#                                 python_callable=print_hello,
-#                                 dag=dag,
-#                                 executor_config={
-#                                     "KubernetesExecutor":
-#                                         {"request_memory": "1GB",
-#                                          "limit_memory": "2GB",
-#                                          },
-#                                 }
-#                                 )
+kubernetes_executor = {
+    "KubernetesExecutor": {
+        "request_cpu": "500m",
+        "request_memory": "512Mi",
+        "limit_cpu": "500m",
+        "limit_memory": "512Mi",
+    }
+}
+
+hello_operator = PythonOperator(task_id='hello_task',
+                                python_callable=print_hello,
+                                dag=dag,
+                                executor_config=kubernetes_executor,
+                                )
 
 
 executor_config_volume_mount = {
@@ -56,9 +85,7 @@ executor_config_volume_mount = {
 # @task(executor_config=executor_config_volume_mount)
 
 def task_with_template():
-    import time
-    time.sleep(120)
-    return 'hello!'
+    print_hello()
 
 
 template_operator = PythonOperator(task_id='task_with_template',
@@ -68,4 +95,4 @@ template_operator = PythonOperator(task_id='task_with_template',
                                    )
 
 
-template_operator
+hello_operator >> template_operator
