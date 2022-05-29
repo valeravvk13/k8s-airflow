@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ubuntu-deployment
+  labels:
+    app: ubuntu
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: ubuntu
+  template:
+    metadata:
+      labels:
+        app: ubuntu
+    spec:
+      tolerations:
+        - effect: NoSchedule
+          key: oos
+          operator: Exists
+#      affinity:
+#        nodeAffinity:
+#          requiredDuringSchedulingIgnoredDuringExecution:
+#            nodeSelectorTerms:
+#              - matchExpressions:
+#                  - key: team
+#                    operator: In
+#                    values:
+#                      - oos
+      containers:
+      - name: ubuntu
+        image: ubuntu
+        command:
+          - "/bin/sh"
+        args:
+          - "-c"
+          - "sleep 5000000"
+        resources:
+          limits:
+            cpu: 500m
+            memory: 512Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi

@@ -18,20 +18,7 @@ pod = k8s.V1Affinity(
     )
 )
 
-print(pod.to_str())
+print(k8s.V1Toleration(effect="NoSchedule", key="oos", operator="Exists",).to_dict())
 
-affinity = {
-    "affinity": {
-        'node_affinity': {
-            'required_during_scheduling_ignored_during_execution': {
-                'node_selector_terms': [
-                    {'key': 'team',
-                     'operator': 'In',
-                     'values': ['oos']
-                     }
-                ]
-            }
-        }
-    }
-}
-print({**affinity})
+print(pod.to_dict())
+print(pod.to_str())

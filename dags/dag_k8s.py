@@ -38,7 +38,7 @@ tolerations = {
     ]
 }
 affinity = {
-    "affinity": {
+    "affinity": [{
         'node_affinity': {
             'preferred_during_scheduling_ignored_during_execution': None,
             'required_during_scheduling_ignored_during_execution': {
@@ -58,7 +58,7 @@ affinity = {
         },
         'pod_affinity': None,
         'pod_anti_affinity': None
-    }
+    }]
 }
 
 
@@ -91,7 +91,7 @@ affinity_tolerations_operator = PythonOperator(task_id='pod_affinity_tolerations
                                                executor_config={
                                                    "KubernetesExecutor": {
                                                        **resources,
-                                                       **tolerations,
+                                                       #**tolerations,
                                                        **affinity,
                                                    }
                                                },
@@ -104,7 +104,7 @@ executor_config_pod_override_template = {
         spec=k8s.V1PodSpec(
             containers=[
                 k8s.V1Container(
-                    name="base_container",
+                    name="base_container",  # base ??
                     resources=k8s.V1ResourceRequirements(
                         limits={
                             "cpu": "200m",
@@ -123,20 +123,42 @@ executor_config_pod_override_template = {
                     key="oos",
                     operator="Exists",
                 )
-            ]
+            ],
+            affinity=k8s.V1Affinity(
+                node_affinity=k8s.V1NodeAffinity(
+                    required_during_scheduling_ignored_during_execution=k8s.V1NodeSelector(
+                        node_selector_terms=[
+                            k8s.V1NodeSelectorTerm(
+                                match_expressions=[
+                                    k8s.V1NodeSelectorRequirement(
+                                        key="team",
+                                        operator="In",
+                                        values=["oos"]
+                                    )
+                                ]
+                            )
+                        ]
+                    )
+                )
+            )
         )
 
     ),
 }
 
-template_operator = PythonOperator(task_id='template_pod_override',
-                                   python_callable=print_hello,
-                                   dag=dag,
-                                   executor_config=executor_config_pod_override_template
-                                   )
+template_operators = []
+# for i in range(6):
+#     template_operator = PythonOperator(task_id=f'template_pod_{i}{i}_override',
+#                                        python_callable=print_hello,
+#                                        dag=dag,
+#                                        executor_config=executor_config_pod_override_template
+#                                        )
+#     template_operators.append(template_operator)
 
-
-[simple_operator, affinity_operator, affinity_tolerations_operator, template_operator]
+[simple_operator,
+ affinity_operator,
+ #affinity_tolerations_operator
+ ] + template_operators
 
 
 
