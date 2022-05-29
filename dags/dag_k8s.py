@@ -38,7 +38,7 @@ tolerations = {
     ]
 }
 affinity = {
-    "affinity": [{
+    "affinity": {
         'node_affinity': {
             'preferred_during_scheduling_ignored_during_execution': None,
             'required_during_scheduling_ignored_during_execution': {
@@ -58,7 +58,7 @@ affinity = {
         },
         'pod_affinity': None,
         'pod_anti_affinity': None
-    }]
+    }
 }
 
 
@@ -74,28 +74,19 @@ simple_operator = PythonOperator(task_id='pod_simple',
                                 )
 
 
-affinity_operator = PythonOperator(task_id='pod_affinity',
-                                   python_callable=print_hello,
-                                   dag=dag,
-                                   executor_config={
-                                       "KubernetesExecutor": {
-                                           **resources,
-                                           **affinity,
-                                       }
-                                   },
-                                   )
 
-affinity_tolerations_operator = PythonOperator(task_id='pod_affinity_tolerations',
-                                               python_callable=print_hello,
-                                               dag=dag,
-                                               executor_config={
-                                                   "KubernetesExecutor": {
-                                                       **resources,
-                                                       #**tolerations,
-                                                       **affinity,
-                                                   }
-                                               },
-                                               )
+
+# affinity_tolerations_operator = PythonOperator(task_id='pod_affinity_tolerations',
+#                                                python_callable=print_hello,
+#                                                dag=dag,
+#                                                executor_config={
+#                                                    "KubernetesExecutor": {
+#                                                        **resources,
+#                                                        #**tolerations,
+#                                                        **affinity,
+#                                                    }
+#                                                },
+#                                                )
 
 
 
@@ -155,10 +146,24 @@ template_operators = []
 #                                        )
 #     template_operators.append(template_operator)
 
+affinity_operators = []
+for i in range(5):
+    affinity_operator = PythonOperator(task_id=f'pod_affinity_{i}{i}{i}',
+                                       python_callable=print_hello,
+                                       dag=dag,
+                                       executor_config={
+                                           "KubernetesExecutor": {
+                                               **resources,
+                                               **affinity,
+                                           }
+                                       },
+                                       )
+    affinity_operators.append(affinity_operator)
+
 [simple_operator,
- affinity_operator,
+ #affinity_operator,
  #affinity_tolerations_operator
- ] + template_operators
+ ] + template_operators + affinity_operators
 
 
 
