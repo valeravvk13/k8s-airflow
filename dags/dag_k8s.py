@@ -35,7 +35,7 @@ kubernetes_executor = {
         "request_memory": "512Mi",
         "limit_cpu": "500m",
         "limit_memory": "512Mi",
-        "tolerations": tolerations,
+        #"tolerations": tolerations,
     }
 }
 
