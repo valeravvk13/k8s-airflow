@@ -89,4 +89,4 @@ template_operator = PythonOperator(task_id='task_with_template',
                                    )
 
 
-hello_operator >> template_operator
+[hello_operator, template_operator]
