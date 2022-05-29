@@ -89,7 +89,23 @@ simple_operator = PythonOperator(task_id='pod_simple',
 #                                                )
 
 
-
+affinity = k8s.V1Affinity(
+                node_affinity=k8s.V1NodeAffinity(
+                    required_during_scheduling_ignored_during_execution=k8s.V1NodeSelector(
+                        node_selector_terms=[
+                            k8s.V1NodeSelectorTerm(
+                                match_expressions=[
+                                    k8s.V1NodeSelectorRequirement(
+                                        key="team",
+                                        operator="In",
+                                        values=["oos"]
+                                    )
+                                ]
+                            )
+                        ]
+                    )
+                )
+            )
 executor_config_pod_override_template = {
     "pod_override": k8s.V1Pod(
         spec=k8s.V1PodSpec(
@@ -115,23 +131,7 @@ executor_config_pod_override_template = {
                     operator="Exists",
                 )
             ],
-            affinity=k8s.V1Affinity(
-                node_affinity=k8s.V1NodeAffinity(
-                    required_during_scheduling_ignored_during_execution=k8s.V1NodeSelector(
-                        node_selector_terms=[
-                            k8s.V1NodeSelectorTerm(
-                                match_expressions=[
-                                    k8s.V1NodeSelectorRequirement(
-                                        key="team",
-                                        operator="In",
-                                        values=["oos"]
-                                    )
-                                ]
-                            )
-                        ]
-                    )
-                )
-            )
+            affinity=affinity
         )
 
     ),
@@ -146,6 +146,12 @@ template_operators = []
 #                                        )
 #     template_operators.append(template_operator)
 
+
+affinity_to = {
+    "affinity": affinity.to_dict()
+}
+
+
 affinity_operators = []
 for i in range(5):
     affinity_operator = PythonOperator(task_id=f'pod_affinity_{i}{i}{i}',
@@ -154,7 +160,7 @@ for i in range(5):
                                        executor_config={
                                            "KubernetesExecutor": {
                                                **resources,
-                                               **affinity,
+                                               **affinity_to,
                                            }
                                        },
                                        )
