@@ -1,0 +1,16 @@
+
+kind create cluster --name k8s-cluster --config kind-config.yaml
+kind delete cluster --name k8s-cluster
+
+
+kubectl taint nodes k8s-cluster-worker2 oos=true:NoSchedule
+kubectl get nodes k8s-cluster-worker2 -o jsonpath='{.spec.taints}'
+kubectl label nodes k8s-cluster-worker2 team=oos
+
+kubectl apply -f ubuntu-pod.yaml
+kubectl delete -f ubuntu-pod.yaml
+
+kubectl get pods ubuntu-pod -o jsonpath='{.spec.nodeName}'
+kubectl get pods -o jsonpath='{.items[*].spec.nodeName}'
+
+helm upgrade --install airflow apache-airflow/airflow --values values.yaml  --kube-context kind-k8s-cluster

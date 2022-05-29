@@ -17,7 +17,7 @@ def print_hello():
     print("hello")
 
 
-dag = DAG(dag_id='hello_world_dag2',
+dag = DAG(dag_id='k8s-taint-dag',
           description='Hello World DAG',
           schedule_interval=None,
           start_date=datetime(2017, 3, 20),

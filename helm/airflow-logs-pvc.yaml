@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: airflow-logs-pv
+spec:
+  capacity:
+    storage: 10Gi
+  storageClassName: ""
+  claimRef:
+    name: airflow-logs-claim
+    namespace: default
+  accessModes:
+    - ReadWriteOnce
+  local:
+    path: "/home"
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                - k8s-cluster-worker2
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: airflow-logs-claim
+spec:
+  storageClassName: ""
+  volumeName: airflow-logs-pv
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 8Gi

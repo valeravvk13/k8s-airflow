@@ -1554,7 +1554,7 @@ podTemplate: ~
 dags:
   persistence:
     # Enable persistent volume for storing dags
-    enabled: true
+    enabled: false #true
     # Volume size for dags
     size: 1Gi
     # If using a custom storageClass, pass name here
@@ -1642,6 +1642,6 @@ logs:
     # Volume size for logs
     size: 8Gi
     # If using a custom storageClass, pass name here
-    storageClassName:
+    storageClassName: ""
     ## the name of an existing PVC to use
-    existingClaim: #task-pv-claim-logs
+    existingClaim: airflow-logs-claim
