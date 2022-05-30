@@ -31,6 +31,47 @@ spec:
         requests:
           cpu: 100m
           memory: 128Mi
+      env:
+#        - name: MY_CPU_REQUEST
+#          valueFrom:
+#            resourceFieldRef:
+#              resource: requests.cpu
+#              divisor: 1m
+#        - name: MY_CPU_LIMIT
+#          valueFrom:
+#            resourceFieldRef:
+#              resource: limits.cpu
+#              divisor: 1m
+#        - name: MY_MEM_REQUEST
+#          valueFrom:
+#            resourceFieldRef:
+#              resource: requests.memory
+#              divisor: 1Mi
+#        - name: MY_MEM_LIMIT
+#          valueFrom:
+#            resourceFieldRef:
+#              resource: limits.memory
+#              divisor: 1Mi
+        - name: MY_NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: MY_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: MY_POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: MY_POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: MY_POD_SERVICE_ACCOUNT
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.serviceAccountName
 #
 #      volumeMounts:
 #        - mountPath: "/home/dags"
