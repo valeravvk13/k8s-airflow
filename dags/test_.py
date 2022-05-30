@@ -18,7 +18,25 @@ pod = k8s.V1Affinity(
     )
 )
 
-print(k8s.V1Toleration(effect="NoSchedule", key="oos", operator="Exists",).to_dict())
+#print(k8s.V1Toleration(effect="NoSchedule", key="oos", operator="Exists",).to_dict())
 
-print(pod.to_dict())
-print(pod.to_str())
+# pod = k8s.V1Volume(
+#                         name="hadoop-credentials",
+#                         secret=k8s.V1SecretVolumeSource(
+#                             secret_name="user-nlfs",
+#                         )
+#                     )
+# #print(pod.to_dict())
+# print(pod.to_str())
+
+
+k8s.V1EnvVar(
+    name="env_prefix" + "",
+    value_from=k8s.V1EnvVarSource(
+        field_ref=k8s.V1ObjectFieldSelector(
+            field_path="requests.cpu"
+        )
+    )
+)
+
+print("sfgs.sadfgs".replace(".", "_").upper())

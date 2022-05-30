@@ -160,7 +160,7 @@ for i in range(5):
                                        executor_config={
                                            "KubernetesExecutor": {
                                                **resources,
-                                               **affinity_to,
+                                               #**affinity_to,
                                            }
                                        },
                                        )
