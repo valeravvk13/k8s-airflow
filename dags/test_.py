@@ -126,9 +126,14 @@ def delete_none(_dict):
     return _dict
 
 filtered_dict = delete_none(pod.to_dict())
+filtered_dict = {"pod_override": filtered_dict}
 import json
 str_pod = json.dumps(filtered_dict)
 
 with open("pod_over.txt", "w") as file:
     file.write(str_pod)
-print(str_pod)
+#
+# with open("pod_over.txt", "r") as file:
+#     print(file.readline())
+#print(str_pod)
+

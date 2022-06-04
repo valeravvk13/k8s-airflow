@@ -1,14 +1,20 @@
 from datetime import datetime
+import json
 from airflow import DAG
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.python_operator import PythonOperator
 
 from kubernetes.client import models as k8s
 from airflow.decorators import task
+from airflow.utils.decorators import apply_defaults
+from airflow.models import Variable
 
 
-def show_envs(sleep_time=10):
+def show_envs(kubernetes_executor, sleep_time=10,):
     import time, os, datetime
+
+    print(type(kubernetes_executor))
+    print(kubernetes_executor)
 
     for item, value in os.environ.items():
         if ("RUNTIME_ENV" in item) | ("IS_TESTING_" in item):
@@ -16,7 +22,7 @@ def show_envs(sleep_time=10):
 
     print(f"sleep_time: {sleep_time}")
     if (sleep_time is None) | (sleep_time == "None"):
-        sleep_time = 10
+        sleep_time = 20
     time.sleep(int(sleep_time))
 
 
@@ -28,8 +34,7 @@ dag = DAG(dag_id='test_k8s_dag',
           )
 
 
-kubernetes_executor = {
-    "pod_override": k8s.V1Pod(
+pod_override_tmpl = k8s.V1Pod(
         spec=k8s.V1PodSpec(
             containers=[
                 k8s.V1Container(
@@ -96,9 +101,16 @@ kubernetes_executor = {
                 ),
             ),
         ),
-    ),
+    )
+
+
+pod_config_k8s = eval(Variable.get("pod_config_to_eval"))
+kubernetes_executor = {
+    "pod_override": pod_config_k8s
 }
 
+# pod_config = json.loads(Variable.get("pod_config"))
+# print(f"in logs: {pod_config}, {type(pod_config)}")
 
 operators = []
 for i in range(1, 4):
@@ -107,9 +119,9 @@ for i in range(1, 4):
                               dag=dag,
                               op_kwargs={
                                   'sleep_time': "{{ dag_run.conf.get('sleep_time') }}",
-                              }, #"{{ dag_run.conf.get('arg') | jsonify }}",
+                                  'kubernetes_executor': pod_config_k8s,
+                              },
                               executor_config=kubernetes_executor,
-                              #executor_config="{{ dag_run.conf.get('kubernetes_executor') | jsonify}}",
                               )
     operators.append(operator)
 
