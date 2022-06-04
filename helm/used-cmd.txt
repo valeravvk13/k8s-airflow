@@ -3,9 +3,9 @@ kind create cluster --name k8s-cluster --config kind-config.yaml
 kind delete cluster --name k8s-cluster
 
 
-kubectl taint nodes k8s-cluster-worker2 oos=true:NoSchedule
-kubectl get nodes k8s-cluster-worker2 -o jsonpath='{.spec.taints}'
-kubectl label nodes k8s-cluster-worker2 team=oos
+kubectl taint nodes k8s-cluster-worker oos=true:NoSchedule
+kubectl get nodes k8s-cluster-worker -o jsonpath='{.spec.taints}'
+kubectl label nodes k8s-cluster-worker team=oos
 
 kubectl apply -f ubuntu-pod.yaml
 kubectl delete -f ubuntu-pod.yaml

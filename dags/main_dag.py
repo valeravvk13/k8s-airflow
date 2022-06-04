@@ -109,6 +109,7 @@ for i in range(1, 4):
                                   'sleep_time': "{{ dag_run.conf.get('sleep_time') }}",
                               }, #"{{ dag_run.conf.get('arg') | jsonify }}",
                               executor_config=kubernetes_executor,
+                              #executor_config="{{ dag_run.conf.get('kubernetes_executor') | jsonify}}",
                               )
     operators.append(operator)
 
