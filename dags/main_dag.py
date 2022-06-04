@@ -7,13 +7,17 @@ from kubernetes.client import models as k8s
 from airflow.decorators import task
 
 
-def show_envs():
+def show_envs(sleep_time=10):
     import time, os, datetime
 
     for item, value in os.environ.items():
-        if "RUNTIME_ENV" in item:
+        if ("RUNTIME_ENV" in item) | ("IS_TESTING_" in item):
             print('{}: {}'.format(item, value))
-    time.sleep(20)
+
+    print(f"sleep_time: {sleep_time}")
+    if (sleep_time is None) | (sleep_time == "None"):
+        sleep_time = 10
+    time.sleep(int(sleep_time))
 
 
 dag = DAG(dag_id='test_k8s_dag',
@@ -24,22 +28,22 @@ dag = DAG(dag_id='test_k8s_dag',
           )
 
 
-pod_oveeride_config = {
+kubernetes_executor = {
     "pod_override": k8s.V1Pod(
         spec=k8s.V1PodSpec(
             containers=[
                 k8s.V1Container(
-                    name="base_container",  # base ??
-                    resources=k8s.V1ResourceRequirements(
-                        limits={
-                            "cpu": "200m",
-                            "memory": "256Mi",
-                        },
-                        requests={
-                            "cpu": "200m",
-                            "memory": "256Mi",
-                        },
-                    ),
+                    name="base",
+                    # resources=k8s.V1ResourceRequirements(
+                    #     limits={
+                    #         "cpu": "10000m",  # "72000m"
+                    #         "memory": "10Gi",  # "503Gi"
+                    #     },
+                    #     requests={
+                    #         "cpu": "8192m",
+                    #         "memory": "8Gi",
+                    #     },
+                    # ),
                     env=[
                         k8s.V1EnvVar(
                             name="RUNTIME_ENV_" + field_path.replace(".", "_").upper(),
@@ -54,15 +58,25 @@ pod_oveeride_config = {
                                              "status.podIP",
                                              "status.hostIP",
                                              ]
-                    ]
-                )
+                    ] + [
+                        k8s.V1EnvVar(name="IS_TESTING_OOS_ONLINE_FEATURES", value="OOS_TEST_TRUE")
+                    ],
+                ),
+            ],
+            volumes=[
+                k8s.V1Volume(
+                    name="hadoop-credentials",
+                    secret=k8s.V1SecretVolumeSource(
+                        secret_name="user-tsx",
+                    )
+                ),
             ],
             tolerations=[
                 k8s.V1Toleration(
                     effect="NoSchedule",
                     key="oos",
                     operator="Exists",
-                )
+                ),
             ],
             affinity=k8s.V1Affinity(
                 node_affinity=k8s.V1NodeAffinity(
@@ -74,24 +88,27 @@ pod_oveeride_config = {
                                         key="team",
                                         operator="In",
                                         values=["oos"]
-                                    )
-                                ]
-                            )
-                        ]
-                    )
-                )
-            )
-        )
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                ),
+            ),
+        ),
     ),
 }
 
 
 operators = []
-for i in range(1, 6):
+for i in range(1, 4):
     operator = PythonOperator(task_id=f'pod_{i}{i}',
                               python_callable=show_envs,
                               dag=dag,
-                              executor_config=pod_oveeride_config,
+                              op_kwargs={
+                                  'sleep_time': "{{ dag_run.conf.get('sleep_time') }}",
+                              }, #"{{ dag_run.conf.get('arg') | jsonify }}",
+                              executor_config=kubernetes_executor,
                               )
     operators.append(operator)
 

@@ -236,9 +236,9 @@ executor: "KubernetesExecutor"
 allowPodLaunching: true
 
 # Environment variables for all airflow containers
-env: []
-# - name: ""
-#   value: ""
+env:
+ - name: "IS_TESTING_NAME1"
+   value: "IS_TESTING_VALUE1"
 
 # Secrets for all airflow containers
 secret: []
@@ -1638,7 +1638,7 @@ dags:
 logs:
   persistence:
     # Enable persistent volume for storing logs
-    enabled: true #true
+    enabled: false #true
     # Volume size for logs
     size: 8Gi
     # If using a custom storageClass, pass name here

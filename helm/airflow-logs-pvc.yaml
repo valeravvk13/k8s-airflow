@@ -20,7 +20,7 @@ spec:
             - key: kubernetes.io/hostname
               operator: In
               values:
-                - k8s-cluster-worker3
+                - k8s-cluster-worker2
 
 ---
 apiVersion: v1

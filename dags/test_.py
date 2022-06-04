@@ -40,3 +40,19 @@ k8s.V1EnvVar(
 )
 
 print("sfgs.sadfgs".replace(".", "_").upper())
+
+
+def show_envs(sleep_time=10):
+    import time, os, datetime
+
+    for item, value in os.environ.items():
+        if ("RUNTIME_ENV" in item) | ("IS_TESTING_" in item):
+            print('{}: {}'.format(item, value))
+
+    print(f"sleep_time: {sleep_time}")
+    if (sleep_time is None):
+        sleep_time = 10
+    time.sleep(sleep_time)
+
+
+show_envs()
