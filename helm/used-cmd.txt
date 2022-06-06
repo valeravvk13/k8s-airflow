@@ -2,6 +2,8 @@
 kind create cluster --name k8s-cluster --config kind-config.yaml
 kind delete cluster --name k8s-cluster
 
+# не забывать!
+kubectl apply -f airflow-logs-pvc.yaml
 
 kubectl taint nodes k8s-cluster-worker oos=true:NoSchedule
 kubectl get nodes k8s-cluster-worker -o jsonpath='{.spec.taints}'

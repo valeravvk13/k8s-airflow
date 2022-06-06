@@ -13,9 +13,6 @@ from airflow.models import Variable
 def show_envs(kubernetes_executor, sleep_time=10,):
     import time, os, datetime
 
-    print(type(kubernetes_executor))
-    print(kubernetes_executor)
-
     for item, value in os.environ.items():
         if ("RUNTIME_ENV" in item) | ("IS_TESTING_" in item):
             print('{}: {}'.format(item, value))
@@ -23,6 +20,10 @@ def show_envs(kubernetes_executor, sleep_time=10,):
     print(f"sleep_time: {sleep_time}")
     if (sleep_time is None) | (sleep_time == "None"):
         sleep_time = 20
+
+    print(type(kubernetes_executor["pod_override"]))
+    print(kubernetes_executor)
+
     time.sleep(int(sleep_time))
 
 
@@ -34,7 +35,8 @@ dag = DAG(dag_id='test_k8s_dag',
           )
 
 
-pod_override_tmpl = k8s.V1Pod(
+pod_override_tmpl = {
+    "pod_override": k8s.V1Pod(
         spec=k8s.V1PodSpec(
             containers=[
                 k8s.V1Container(
@@ -101,13 +103,14 @@ pod_override_tmpl = k8s.V1Pod(
                 ),
             ),
         ),
-    )
-
-
-pod_config_k8s = eval(Variable.get("pod_config_to_eval"))
-kubernetes_executor = {
-    "pod_override": pod_config_k8s
+    ),
 }
+
+executor_config = pod_override_tmpl
+var_executor_config = Variable.get("executor_config_bdsd_8115")
+if var_executor_config != "{}":
+    executor_config = eval(var_executor_config)
+
 
 # pod_config = json.loads(Variable.get("pod_config"))
 # print(f"in logs: {pod_config}, {type(pod_config)}")
@@ -119,9 +122,9 @@ for i in range(1, 4):
                               dag=dag,
                               op_kwargs={
                                   'sleep_time': "{{ dag_run.conf.get('sleep_time') }}",
-                                  'kubernetes_executor': pod_config_k8s,
+                                  'kubernetes_executor': executor_config,
                               },
-                              executor_config=kubernetes_executor,
+                              executor_config=executor_config,
                               )
     operators.append(operator)
 
