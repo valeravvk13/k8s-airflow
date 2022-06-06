@@ -8,6 +8,7 @@ kubectl apply -f airflow-logs-pvc.yaml
 kubectl taint nodes k8s-cluster-worker oos=true:NoSchedule
 kubectl get nodes k8s-cluster-worker -o jsonpath='{.spec.taints}'
 kubectl label nodes k8s-cluster-worker team=oos
+kubectl label node k8s-cluster-worker team-
 
 kubectl apply -f ubuntu-pod.yaml
 kubectl delete -f ubuntu-pod.yaml

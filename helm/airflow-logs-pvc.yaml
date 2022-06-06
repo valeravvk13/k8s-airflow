@@ -10,7 +10,7 @@ spec:
     name: airflow-logs-claim
     namespace: default
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   local:
     path: "/home"
   nodeAffinity:

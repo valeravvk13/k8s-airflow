@@ -55,23 +55,23 @@ pod = k8s.V1Pod(
                     #         "memory": "8Gi",
                     #     },
                     # ),
-                    env=[
-                        k8s.V1EnvVar(
-                            name="RUNTIME_ENV_" + field_path.replace(".", "_").upper(),
-                            value_from=k8s.V1EnvVarSource(
-                                field_ref=k8s.V1ObjectFieldSelector(
-                                    field_path=field_path
-                                )
-                            )
-                        ) for field_path in ["spec.nodeName",
-                                             "metadata.name",
-                                             "metadata.namespace",
-                                             "status.podIP",
-                                             "status.hostIP",
-                                             ]
-                    ] + [
-                        k8s.V1EnvVar(name="IS_TESTING_OOS_ONLINE_FEATURES", value="OOS_TEST_TRUE")
-                    ],
+                    # env=[
+                    #     k8s.V1EnvVar(
+                    #         name="RUNTIME_ENV_" + field_path.replace(".", "_").upper(),
+                    #         value_from=k8s.V1EnvVarSource(
+                    #             field_ref=k8s.V1ObjectFieldSelector(
+                    #                 field_path=field_path
+                    #             )
+                    #         )
+                    #     ) for field_path in ["spec.nodeName",
+                    #                          "metadata.name",
+                    #                          "metadata.namespace",
+                    #                          "status.podIP",
+                    #                          "status.hostIP",
+                    #                          ]
+                    # ] + [
+                    #     k8s.V1EnvVar(name="IS_TESTING_OOS_ONLINE_FEATURES", value="OOS_TEST_TRUE")
+                    # ],
                 ),
             ],
             volumes=[
@@ -136,4 +136,5 @@ with open("pod_over.txt", "w") as file:
 # with open("pod_over.txt", "r") as file:
 #     print(file.readline())
 #print(str_pod)
+print(pod.to_str())
 

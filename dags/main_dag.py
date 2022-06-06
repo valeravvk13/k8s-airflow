@@ -5,8 +5,6 @@ from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.python_operator import PythonOperator
 
 from kubernetes.client import models as k8s
-from airflow.decorators import task
-from airflow.utils.decorators import apply_defaults
 from airflow.models import Variable
 
 
@@ -21,7 +19,6 @@ def show_envs(kubernetes_executor, sleep_time=10,):
     if (sleep_time is None) | (sleep_time == "None"):
         sleep_time = 20
 
-    print(type(kubernetes_executor["pod_override"]))
     print(kubernetes_executor)
 
     time.sleep(int(sleep_time))
@@ -103,6 +100,7 @@ pod_override_tmpl = {
                 ),
             ),
         ),
+
     ),
 }
 
