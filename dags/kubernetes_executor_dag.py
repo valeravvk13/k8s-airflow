@@ -21,6 +21,13 @@ def show_envs(kubernetes_executor, sleep_time=10,):
 
     print(kubernetes_executor)
 
+    import config_dir
+    print(config_dir.main_hdfs_path)
+    print(config_dir.prod_hdfs_path)
+    print(config_dir.data_dir_path)
+    print(config_dir.prices_path)
+    print(config_dir.promo_info_path)
+
     time.sleep(int(sleep_time))
 
 
