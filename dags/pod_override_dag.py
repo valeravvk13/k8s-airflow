@@ -24,8 +24,8 @@ def show_envs(kubernetes_executor, sleep_time=10,):
     time.sleep(int(sleep_time))
 
 
-dag = DAG(dag_id='test_k8s_dag',
-          description='test dag',
+dag = DAG(dag_id='pod_override_dag',
+          description='pod override dag',
           schedule_interval=None,
           start_date=datetime(2017, 3, 20),
           catchup=False,
@@ -38,16 +38,16 @@ pod_override_tmpl = {
             containers=[
                 k8s.V1Container(
                     name="base",
-                    # resources=k8s.V1ResourceRequirements(
-                    #     limits={
-                    #         "cpu": "10000m",  # "72000m"
-                    #         "memory": "10Gi",  # "503Gi"
-                    #     },
-                    #     requests={
-                    #         "cpu": "8192m",
-                    #         "memory": "8Gi",
-                    #     },
-                    # ),
+                    resources=k8s.V1ResourceRequirements(
+                        limits={
+                            "cpu": "500m",  # "72000m"
+                            "memory": "512Mi",  # "503Gi"
+                        },
+                        requests={
+                            "cpu": "250m",
+                            "memory": "256Mi",
+                        },
+                    ),
                     env=[
                         k8s.V1EnvVar(
                             name="RUNTIME_ENV_" + field_path.replace(".", "_").upper(),
@@ -104,14 +104,12 @@ pod_override_tmpl = {
     ),
 }
 
+
 executor_config = pod_override_tmpl
-var_executor_config = Variable.get("executor_config_bdsd_8115")
+var_executor_config = Variable.get("pod_override_bdsd_8115")
 if var_executor_config != "{}":
     executor_config = eval(var_executor_config)
 
-
-# pod_config = json.loads(Variable.get("pod_config"))
-# print(f"in logs: {pod_config}, {type(pod_config)}")
 
 operators = []
 for i in range(1, 4):
